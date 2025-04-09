@@ -287,6 +287,7 @@ class Price
     private function getConfigurableRegularPrice(int $productId)
     {
         if (null === $this->configurableRegularPrices) {
+            $this->configurableRegularPrices = [];
             /** @var Collection $collection */
             $collection = $this->collectionFactory->create();
             $select = $collection->getConnection()->select();
