@@ -48,11 +48,14 @@ class Filter
         $entityIds = $this->filterVisibility($filter, $storeId);
         $entityIds = $this->filterStatus($entityIds, $filter['add_disabled_products'], $storeId);
 
-        $websiteId = $storeId ? $this->getWebsiteId($storeId) : null;
         return $this->filterByWebsiteAndCategory(
             $entityIds,
-            $websiteId,
-            $filter['category_restriction_behaviour'],
+            $storeId
+                ? $this->getWebsiteId($storeId)
+                : null,
+            $filter['restrict_by_category']
+                ? $filter['category_restriction_behaviour']
+                : null,
             $filter['category']
         );
     }
@@ -63,13 +66,20 @@ class Filter
     private function prefetchAttributeIds(): void
     {
         $connection = $this->resourceConnection->getConnection();
+
+        $entityTypeTable = $this->resourceConnection->getTableName('eav_entity_type');
         $eavTable = $this->resourceConnection->getTableName('eav_attribute');
 
         $attributes = $connection->fetchPairs(
             $connection->select()
-                ->from($eavTable, ['attribute_code', 'attribute_id'])
-                ->where('entity_type_id = ?', 4)
-                ->where('attribute_code IN (?)', ['status', 'visibility'])
+                ->from(['ea' => $eavTable], ['attribute_code', 'attribute_id'])
+                ->join(
+                    ['et' => $entityTypeTable],
+                    'ea.entity_type_id = et.entity_type_id',
+                    []
+                )
+                ->where('et.entity_type_code = ?', 'catalog_product')
+                ->where('ea.attribute_code IN (?)', ['status', 'visibility'])
         );
 
         $this->statusAttributeId = (int)($attributes['status'] ?? 0);

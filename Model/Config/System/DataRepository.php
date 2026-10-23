@@ -34,7 +34,7 @@ class DataRepository extends SearchRepository implements DataInterface
     /**
      * @inheritDoc
      */
-    public function isDataEnabled(int $storeId = null): bool
+    public function isDataEnabled(?int $storeId = null): bool
     {
         return $this->isSetFlag(self::XML_PATH_ENABLED, $storeId)
             && $this->isSetFlag(ConfigInterface::XML_PATH_EXTENSION_ENABLE, $storeId);
@@ -43,7 +43,7 @@ class DataRepository extends SearchRepository implements DataInterface
     /**
      * @inheritDoc
      */
-    public function getFilename(int $storeId = null): string
+    public function getFilename(?int $storeId = null): string
     {
         $fileName = strtolower($this->getStoreValue(self::XML_PATH_FILENAME, $storeId));
         return str_replace('.xml', '', $fileName) . '-' . $storeId . '.xml';
@@ -240,7 +240,8 @@ class DataRepository extends SearchRepository implements DataInterface
             'use_parent_url' => $this->configurableProductUrl($storeId),
             'use_parent_images' => $this->configurableProductImage($storeId),
             'use_parent_attributes' => $this->configurableParentAttributes($storeId),
-            'use_non_visible_fallback' => $this->configurableNonVisibleFallback($storeId)
+            'use_non_visible_fallback' => $this->configurableNonVisibleFallback($storeId),
+            'add_super_attributes' => $this->configurableSuperAttributes($storeId)
         ];
     }
 
@@ -305,6 +306,18 @@ class DataRepository extends SearchRepository implements DataInterface
     private function configurableNonVisibleFallback(int $storeId): bool
     {
         return $this->isSetFlag(self::XML_PATH_CONFIGURABLE_NON_VISIBLE, $storeId);
+    }
+
+    /**
+     * Flag to add 'Super Attributes' to configurable parent products
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    private function configurableSuperAttributes(int $storeId): bool
+    {
+        return $this->isSetFlag(self::XML_PATH_CONFIGURABLE_SUPER_ATTRIBUTES, $storeId);
     }
 
     /**
